@@ -23,9 +23,43 @@ export default function AddEventModal({
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [description, setDescription] = useState('')
+  const [timeError, setTimeError] = useState('')
+
+  const validateTime = (start: string, end: string) => {
+    if (!start || !end) return true
+    return start < end
+  }
+
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartTime = e.target.value
+    setStartTime(newStartTime)
+    
+    if (endTime && !validateTime(newStartTime, endTime)) {
+      setTimeError('Start time must be before end time')
+    } else {
+      setTimeError('')
+    }
+  }
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEndTime = e.target.value
+    setEndTime(newEndTime)
+    
+    if (startTime && !validateTime(startTime, newEndTime)) {
+      setTimeError('End time must be after start time')
+    } else {
+      setTimeError('')
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateTime(startTime, endTime)) {
+      setTimeError('Start time must be before end time')
+      return
+    }
+
     const event: CalendarEvent = {
       id: Date.now().toString(),
       title,
@@ -36,6 +70,12 @@ export default function AddEventModal({
     }
     onAddEvent(event)
     onClose()
+    // Reset form
+    setTitle('')
+    setStartTime('')
+    setEndTime('')
+    setDescription('')
+    setTimeError('')
   }
 
   return (
@@ -60,7 +100,7 @@ export default function AddEventModal({
               id="startTime"
               type="time"
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={handleStartTimeChange}
               required
             />
           </div>
@@ -70,10 +110,15 @@ export default function AddEventModal({
               id="endTime"
               type="time"
               value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              onChange={handleEndTimeChange}
               required
             />
           </div>
+          {timeError && (
+            <div className="text-sm text-red-500">
+              {timeError}
+            </div>
+          )}
           <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
@@ -82,7 +127,7 @@ export default function AddEventModal({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          <Button type="submit">Add Event</Button>
+          <Button type="submit" disabled={!!timeError}>Add Event</Button>
         </form>
       </DialogContent>
     </Dialog>

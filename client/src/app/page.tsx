@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useEvents } from '@/hooks/useEvents'
 import { useCalendar } from '@/hooks/useCalendar'
 import { CalendarEvent } from '@/types/event'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -57,12 +58,16 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Calendar Task Tracker</h1>
-      <div className="flex justify-between mb-4">
-        <Button onClick={goToPreviousMonth}>Previous</Button>
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={goToPreviousMonth} variant="outline" size="icon">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
         <h2 className="text-xl font-semibold">
           {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </h2>
-        <Button onClick={goToNextMonth}>Next</Button>
+        <Button onClick={goToNextMonth} variant="outline" size="icon">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
       <Calendar
         currentDate={currentDate}

@@ -31,6 +31,7 @@ export default function EventModal({
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [description, setDescription] = useState('')
+  const [timeError, setTimeError] = useState('')
 
   useEffect(() => {
     if (editingEvent) {
@@ -44,10 +45,44 @@ export default function EventModal({
       setEndTime('')
       setDescription('')
     }
+    setTimeError('')
   }, [editingEvent])
+
+  const validateTime = (start: string, end: string) => {
+    if (!start || !end) return true
+    return start < end
+  }
+
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartTime = e.target.value
+    setStartTime(newStartTime)
+    
+    if (endTime && !validateTime(newStartTime, endTime)) {
+      setTimeError('Start time must be before end time')
+    } else {
+      setTimeError('')
+    }
+  }
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEndTime = e.target.value
+    setEndTime(newEndTime)
+    
+    if (startTime && !validateTime(startTime, newEndTime)) {
+      setTimeError('End time must be after start time')
+    } else {
+      setTimeError('')
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateTime(startTime, endTime)) {
+      setTimeError('Start time must be before end time')
+      return
+    }
+
     const event: CalendarEvent = {
       id: editingEvent ? editingEvent.id : Date.now().toString(),
       title,
@@ -56,11 +91,13 @@ export default function EventModal({
       endTime,
       description
     }
+    
     if (editingEvent) {
       onUpdateEvent(event)
     } else {
       onAddEvent(event)
     }
+    onClose()
   }
 
   return (
@@ -85,7 +122,7 @@ export default function EventModal({
               id="startTime"
               type="time"
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={handleStartTimeChange}
               required
             />
           </div>
@@ -95,10 +132,15 @@ export default function EventModal({
               id="endTime"
               type="time"
               value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              onChange={handleEndTimeChange}
               required
             />
           </div>
+          {timeError && (
+            <div className="text-sm text-red-500">
+              {timeError}
+            </div>
+          )}
           <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
@@ -108,7 +150,9 @@ export default function EventModal({
             />
           </div>
           <div className="flex justify-between">
-            <Button type="submit">{editingEvent ? 'Update' : 'Add'} Event</Button>
+            <Button type="submit" disabled={!!timeError}>
+              {editingEvent ? 'Update' : 'Add'} Event
+            </Button>
             {editingEvent && (
               <Button 
                 type="button" 
