@@ -57,7 +57,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Calendar Task Tracker</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Calendar Task Tracker</h1>
       <div className="flex justify-between items-center mb-4">
         <Button onClick={goToPreviousMonth} variant="outline" size="icon">
           <ChevronLeft className="h-4 w-4" />
